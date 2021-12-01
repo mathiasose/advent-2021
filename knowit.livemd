@@ -1,0 +1,144 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Knowit 2021
+
+## Setup
+
+```elixir
+Mix.install([
+  {:httpoison, "~> 1.8"},
+  {:jason, "~> 1.2"},
+  {:vega_lite, "~> 0.1.2"},
+  {:kino, "~> 0.3.1"}
+])
+
+alias VegaLite, as: Vl
+
+ExUnit.start(autorun: false)
+```
+
+```output
+:ok
+```
+
+```elixir
+defmodule Util.Http do
+  def get_text(url) do
+    %{status_code: 200, body: body} = HTTPoison.get!(url, [], follow_redirect: true)
+    body
+  end
+
+  def get_json(url) do
+    %{status_code: 200, body: body} = HTTPoison.get!(url, [], follow_redirect: true)
+    Jason.decode!(body)
+  end
+end
+```
+
+```output
+{:module, Util.Http, <<70, 79, 82, 49, 0, 0, 7, ...>>, {:get_json, 1}}
+```
+
+## Day 1
+
+Tall er helt klart enklest å håndtere når de er nettopp tall. Men som vi kodere vet hender det at en må forholde seg til tall som har blitt strenger. Det er jo irriterende nok, men verre blir det når tallene er gjort om til ord! I strengen "entotrefirefem" har noen gjort om 1, 2, 3, 4, 5 til ord. I denne filen har vi gjort om en liste av tall til en lang streng. Hva er summen av denne listen med tall?
+
+### Opplysninger
+
+* Ingen av tallene er større enn 50
+* Svar med tall, ikke med ord.
+* Høyeste tall blir valgt hvis man kan velge mellom to.
+  * For eksempel: "femti" -> 50, altså IKKE 5 og 10
+
+```elixir
+defmodule Talltull do
+  def parse(""), do: []
+
+  def parse("ti" <> rest), do: [10] ++ parse(rest)
+  def parse("tjue" <> rest), do: [20] ++ parse(rest)
+  def parse("tretti" <> rest), do: [30] ++ parse(rest)
+  def parse("førti" <> rest), do: [40] ++ parse(rest)
+  def parse("femti" <> rest), do: [50] ++ parse(rest)
+  # def parse("seksti" <> rest), do: [60] ++ parse(rest)
+  # def parse("sytti" <> rest), do: [70] ++ parse(rest)
+  # def parse("åtti" <> rest), do: [80] ++ parse(rest)
+  # def parse("nitti" <> rest), do: [90] ++ parse(rest)
+
+  def parse("elleve" <> rest), do: [11] ++ parse(rest)
+  def parse("tolv" <> rest), do: [12] ++ parse(rest)
+  def parse("tretten" <> rest), do: [13] ++ parse(rest)
+  def parse("fjorten" <> rest), do: [14] ++ parse(rest)
+  def parse("femten" <> rest), do: [15] ++ parse(rest)
+  def parse("seksten" <> rest), do: [16] ++ parse(rest)
+  def parse("sytten" <> rest), do: [17] ++ parse(rest)
+  def parse("atten" <> rest), do: [18] ++ parse(rest)
+  def parse("nitten" <> rest), do: [19] ++ parse(rest)
+
+  def parse("en" <> rest), do: [1] ++ parse(rest)
+  def parse("to" <> rest), do: [2] ++ parse(rest)
+  def parse("tre" <> rest), do: [3] ++ parse(rest)
+  def parse("fire" <> rest), do: [4] ++ parse(rest)
+  def parse("fem" <> rest), do: [5] ++ parse(rest)
+  def parse("seks" <> rest), do: [6] ++ parse(rest)
+  def parse("sju" <> rest), do: [7] ++ parse(rest)
+  def parse("åtte" <> rest), do: [8] ++ parse(rest)
+  def parse("ni" <> rest), do: [9] ++ parse(rest)
+end
+```
+
+```output
+{:module, Talltull, <<70, 79, 82, 49, 0, 0, 13, ...>>, {:parse, 1}}
+```
+
+```elixir
+defmodule Talltull.Tests do
+  use ExUnit.Case
+
+  import Talltull
+
+  test "entotrefirefem" do
+    assert parse("entotrefirefem") |> Enum.sum() == 15
+  end
+
+  test "sjufirenitrettentrettitretrettitre" do
+    assert parse("sjufirenitrettentrettitretrettitre") |> Enum.sum() == 99
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+..
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+2 tests, 0 failures
+
+Randomized with seed 61117
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 2}
+```
+
+```elixir
+url =
+  "https://julekalender-backend.knowit.no/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBNdz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0af4f790dec929a13e3615fdac11667323ea1597/tall.txt?disposition=inline"
+
+day_1_input = Util.Http.get_text(url)
+```
+
+```output
+"seksnifjortensyttenfemtenfemtiseksellevesjuentofiretretrettenåttetrettientrettientolvellevetotoseksnittentrenisekstensjuåtteåttetoenåtteåttetreellevefemtisjutolvtolvsekstenfiretolvtolvelleveførtiattensekstitosjufireellevenittenfiretolvnitjuetrettensekstenførtielleveellevetifemtensjuførtiattenfemtinittensekstentjuefemtifemtenfjortenfirefemtitifemtifiresyttennittensyttentjuefemsjufemtenseksfemtensekssjusjutotolvnittentoåttetolvførtiåtteattentjuetrettisjutifemtinienfemtenentolvtrettiattensjufiretolvfemtennittensyttenfemtentjuetotrettiellevetoåttesekstenellevefemseksfemtrettensjutjuetofemtensyttenførtitrettiellevetoninittentrettifemenførtifemtifemtentotjuefiretrettentitotosjuåttefemtentretrettifjortenfemtiattenattennitofemfjortenåtteseksfjortenfemtitrefirefemtentolvnitrettenelleveelleveførtiniattenniførtifemtenfemsyttenfemtenfemtentrettifemsjutrefireførtifemåttetolvnitrettenfemtrettifjortenfemtenfjortenellevetinittensekstoellevenitrettienattenfiretrettenattentolvtoenfemtentofemnittenentrettifemfjortentrettiellevetjuefemtennittenellevesyttenåttetreattennittensekstenenfemtiellevefireførtiellevetotiattennittentolvnisyttentrettentrettenåtteenfirefjortenattensekstentrettisyttenfiretisjutjuetrettiattenfemtitolvattennittentrettisekstisjuførtitiførtitjuefemtosyttenåttetiførtisekstentrenittentonittenfemtitoninitresyttentrenittennittenellevetreseksfireniattensekstenellevenittentrettiattennitifjortentisekstenseksfemtienfirefirefemsekstentisyttentolvtinittenfireåttefemellevefemtrettinisjuenfirenitrettitrettitifemfemtitrettitolvtolvseksellevesyttentototolvfemtitolvattentifjortentrettensyttenførtisyttenfemtenførtisjufiresyttentrettenelleveelleveentrettenseksfemtenseksfemsekssyttensyttenfiretrettitofjortentrettentrettentretitisekstennittennittenfemtifemfemattenfjortenfirenittensyttensyttensjutjuefjortenattenførtiellevetrettentjuenittenseksfemtoåttenittenfemfemattentrettienellevetrenittentifiretrettiførtinittenfjortentrefemtisjutinittenellevesyttennittenførtiførtitotjueførtiåtteelleveførtifiretotolvattennittenseksfemseksfjortensyttenentreenfjortensyttenåttesjuførtitjueseksførtitoseksfjortensekstretrefirenittentolvnifemtiførtitjueenseksentotolvtolvfemtentrettentrettenenfemnitofemtennisjusekstenfirenitofemnitrettenfemsjutrettifireenfjortensyttensekstennittenfemtitrettensekstenseksentolvsekstenfemtentiseksfemfjortensyttensekstenåtteførtifjortenåtteåtteensyttennittenfemtititosekstensekstentrettenellevefemtentrettitreellevetrettiensekssyttenfemtenførtitjuesjufiretofjortentjuesjufireenellevetiførtientrettitrettenfiresyttenattenattenattentrettentiåtteniåttetrettenellevetjuetosekstenenfiresyttenfemsekstentretjuenittenseksfiretofemfjortennitrettenattensekstentiåttefemfirenisjusekssyttentolvsjutrettentrettitinitrettennittenattenfjortenåttefemtitjuesjusjufemtisekssyttenseksellevesjusjuåttetolvtrenitjueåttetrettifemtjuenifemtenellevesjuåtteelleveniattenennittenattentjueellevetjuefirefireellevetretiåtteattennitrettentrettisjutifemtiattentolvførtitjuefemtisekstentrettifemfemførtifemtentrettenåttesjufemtifemtinitrettitosjusjufemåttetrettennisjuåttetrettiellevefemsjufjortensyttenåttenittennittenfiretrefemførtifemåttefemåttefemtenfemtiåttefemenåttetolvnittentrettensekssjuensekstrettiellevetretinittenfemtototolvtrettiførtifiretotrefemtenåttefjortentifiretotrefemtentrettifiretitrettisekstenninittenfemtifemtitrettiennittenåtteattentisyttentrettentosekstofemsekstenfemtofemtifjortentoførtitretolvtretrefjortentreattentjuenisyttentjuetretretretreniattenfemennittennittensekstenfjortentititrettiførtielleveseksattenførtisyttentrettenfemtientrettentolvfemninitreellevetjuefjortentreførtitiattentoensjusekstensjufiretrettifemattensyttentrefjortennisekstennittensekstenenattensekstennittentjuetofemtisekstenfemtitiattentrettitoennifjortenåttesekstotreførtitjuesekstolvtretisjusjuattenfemsyttenåttetjuesjufjortenfemtenfemtitrettensekstentitosyttentisekstretrettensekstensjutjuefemtifjortentjuetolvtjuefiretrettisyttensjutrettenfjortennifjortenenførtisjuførtifjortenfemtiførtiseksåttefemtitrefemfjortensjusjuentrettenfiresyttenfemtenattenåttefirefemtisekstentjueseksfemtrettienfjort" <> ...
+```
+
+```elixir
+day_1_input
+|> String.trim()
+|> Talltull.parse()
+|> Enum.sum()
+```
+
+```output
+142609
+```
