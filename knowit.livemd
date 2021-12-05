@@ -10,7 +10,8 @@ Mix.install([
   {:jason, "~> 1.2"},
   {:vega_lite, "~> 0.1.2"},
   {:kino, "~> 0.3.1"},
-  {:nimble_csv, "~> 1.1"}
+  {:nimble_csv, "~> 1.1"},
+  {:nimble_parsec, "~> 1.2.0"}
 ])
 
 alias VegaLite, as: Vl
@@ -422,4 +423,105 @@ ExUnit.run()
 n = 100_000_000_000_000_000_079
 
 SmartSnailor.travel({0, 0}, :north, n)
+```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 5
+
+Alven Aurora er interessert i å finne ut hvor mange generasjoner med alver hun kommer fra. Hun har laget et slektstre til å hjelpe med dette. Det er bare ett problem, hun har funnet ut at noen av alvene i treet var noen skikkelige Grincher og vil derfor ikke telle disse.
+
+Denne fila inneholder et slektstree. Dersom man ignorerer alle Grinchene men likevell teller alle forfedre av disse, hvor lang tilbake går treet?
+
+```elixir
+day_5_input =
+  Util.Http.get_text(
+    "https://julekalender-backend.knowit.no/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBak1DIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d6d3984e0f603df1771ef6b699e6e86d6ee577a7/tree.txt?disposition=inline"
+  )
+```
+
+```elixir
+defmodule ElfParser do
+  import NimbleParsec
+
+  def parse(input) do
+    case elf(input) do
+      {:ok, [treeish], "", _, _, _} ->
+        treeish
+
+      _ ->
+        :error
+    end
+  end
+
+  name = utf8_string([?A..?ø, ?a..?ø, ?-], min: 1)
+  elf = choice([parsec(:elf), tag(name, :elf)])
+
+  opening_parens = utf8_char('(')
+  closing_parens = utf8_char(')')
+  delimiter = utf8_char(' ')
+
+  parents =
+    ignore(opening_parens)
+    |> repeat(
+      lookahead_not(closing_parens)
+      |> concat(elf)
+      |> ignore(delimiter)
+      |> concat(elf)
+      |> ignore(closing_parens)
+    )
+
+  defparsec(:elf, tag(name |> concat(tag(parents, :parents)), :elf))
+end
+
+defmodule FamilyTreeNode do
+  defstruct [:name, parents: []]
+
+  defp parser_output_to_binary_tree({:elf, [name]}) when is_binary(name) do
+    %FamilyTreeNode{name: name, parents: []}
+  end
+
+  defp parser_output_to_binary_tree({:elf, [name, {:parents, [p1, p2]}]}) when is_binary(name) do
+    %FamilyTreeNode{
+      name: name,
+      parents: [parser_output_to_binary_tree(p1), parser_output_to_binary_tree(p2)]
+    }
+  end
+
+  defp traverse(%FamilyTreeNode{name: name, parents: []}, acc), do: [acc ++ [name]]
+
+  defp traverse(%FamilyTreeNode{name: name, parents: [p1, p2]}, acc) do
+    traverse(p1, acc ++ [name]) ++ traverse(p2, acc ++ [name])
+  end
+
+  def solve(input) do
+    (ElfParser.parse(input)
+     |> parser_output_to_binary_tree
+     |> traverse([])
+     |> Enum.map(fn li -> li |> Enum.filter(fn name -> name != "Grinch" end) end)
+     |> Enum.map(&length/1)
+     |> Enum.max()) - 1
+  end
+end
+```
+
+```elixir
+defmodule FamilyTreeNode.Test do
+  use ExUnit.Case
+
+  import FamilyTreeNode
+
+  test "example" do
+    input =
+      "Aurora(Toralv(Grinch(Kari Robinalv) Alvborg) Grinch(Alva(Alve-Berit Anna) Grete(Ola Hans)))"
+
+    assert solve(input) == 2
+  end
+end
+
+ExUnit.run()
+```
+
+```elixir
+day_5_input |> FamilyTreeNode.solve()
 ```
