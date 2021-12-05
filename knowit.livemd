@@ -37,10 +37,13 @@ end
 defmodule Util.Counter do
   defstruct [:items]
 
-  def new(items) do
+  def new(items, default_keys \\ []) do
+    defaults = default_keys |> Enum.map(fn key -> {key, 0} end) |> Enum.into(%{})
+
     %Util.Counter{
       items:
-        items |> Enum.reduce(%{}, fn x, acc -> acc |> Map.update(x, 1, fn v -> v + 1 end) end)
+        items
+        |> Enum.reduce(defaults, fn x, acc -> acc |> Map.update(x, 1, fn v -> v + 1 end) end)
     }
   end
 
@@ -52,7 +55,7 @@ defmodule Util.Counter do
   end
 end
 
-Util.Counter.new(~w/A B C B C D/) |> Util.Counter.most_common(3)
+Util.Counter.new(~w/A B C B C D/, ["F"]) |> Util.Counter.most_common(15)
 ```
 
 <!-- livebook:{"branch_parent_index":0} -->
@@ -272,6 +275,65 @@ Vl.new(width: 750, height: 500)
 |> Vl.config(view: [stroke: nil])
 ```
 
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 3
+
+Julenissessen har digitalisert julegaveprosessen. Julenissen har nå en lang digital liste over alle barn, med én bokstav per barn. J representerer et snilt barn, og N representerer et slemt barn. Som vil alle vet, er det kun snille barn som får gaver.
+
+Lista har samme rekkefølge som ruta til julenissen, så nabobokstaver representerer barn som er fysiske naboer og tilhører sammen et nabolag.
+
+Et nabolag som har akkurat like mange snille som slemme barn, er det julenissen kaller et "nøytralt nabolag". Slike nabolag er ekstremt viktig å monitorere og passe på, da det fort kan tippe over og bli et "slemt nabolag".
+Oppgave
+
+Julenissen ønsker å vite hvor stort det største nøytrale nabolaget er. Han ønsker også å vite hvor dette området ligger, indeksen i lista. Hvis det er flere nabolag som er like store som det største, skal det første nabolaget, nabolaget med lavest indeks returneres.
+
+Løsningen er på formen "størrelse nabolag, indeks nabolag".
+
+```elixir
+day_3_input =
+  "https://julekalender-backend.knowit.no/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBOdz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--31fa0c541c69eeb9063ccfc56e686f4768662004/input.txt?disposition=inline"
+  |> Util.Http.get_text()
+```
+
+```elixir
+defmodule Neighborhood do
+  def solve(input) do
+    input
+    |> String.graphemes()
+    |> Stream.map(fn
+      "J" -> 1
+      "N" -> -1
+    end)
+    |> Stream.scan(&(&1 + &2))
+    |> Stream.with_index()
+    |> Enum.group_by(fn {n, _} -> n end, fn {_, li} -> li end)
+    |> Map.values()
+    |> Stream.filter(fn li -> length(li) > 1 end)
+    |> Stream.map(fn li -> {List.last(li, 1) - List.first(li), List.first(li) + 1} end)
+    |> Enum.max_by(fn {diff, first} -> {diff, -first} end)
+  end
+end
+```
+
+```elixir
+defmodule Neighborhood.Test do
+  use ExUnit.Case
+
+  import Neighborhood
+
+  test "example" do
+    input = "JJJJJNNJJNNJJJJJ"
+
+    assert solve(input) == {8, 3}
+  end
+end
+
+%{failures: 0} = ExUnit.run()
+```
+
+```elixir
+Neighborhood.solve(day_3_input)
 ```
 
 
