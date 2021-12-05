@@ -336,4 +336,90 @@ end
 Neighborhood.solve(day_3_input)
 ```
 
+<!-- livebook:{"branch_parent_index":0} -->
 
+## Day 4
+
+Piratsneglen Sneglulf er ute på tokt for å finne den sunkne byen Sneglantis. Han fant et gammelt manuskript som forklarte hvilket mønster han må seile i for å kunne finne den sagnomsuste byen i stillehavets uendelige rutenett:
+
+```
+Start på x:0, y:0
+Seil nord (mot høyere y) til du kommer til en rad med nummer som er delelig på 3, men ikke 5; deretter snu øst
+Seil øst (mot høyere x) til du kommer til en kolonne med nummer som er delelig på 5, men ikke 3; deretter snu nord
+```
+
+Etter å ha seilt 100 000 000 000 000 000 079 steg har Sneglulf fortsatt ikke funnet Sneglantis. Men hvor er han? Oppgi svar som x,y.
+
+```elixir
+defmodule NaiveSnailor do
+  def travel({x, y}, _, 0), do: {x, y}
+
+  def travel({x, y}, :north, remaining_steps) when rem(y, 3) == 0 and rem(y, 5) != 0,
+    do: travel({x + 1, y}, :east, remaining_steps - 1)
+
+  def travel({x, y}, :north, remaining_steps),
+    do: travel({x, y + 1}, :north, remaining_steps - 1)
+
+  def travel({x, y}, :east, remaining_steps) when rem(x, 5) == 0 and rem(x, 3) != 0,
+    do: travel({x, y + 1}, :north, remaining_steps - 1)
+
+  def travel({x, y}, :east, remaining_steps),
+    do: travel({x + 1, y}, :east, remaining_steps - 1)
+end
+```
+
+```elixir
+defmodule Snailor.Test do
+  use ExUnit.Case
+
+  import NaiveSnailor
+
+  test "example" do
+    assert travel({0, 0}, :north, 11) == {5, 6}
+  end
+end
+
+ExUnit.run()
+```
+
+```elixir
+defmodule SmartSnailor do
+  def travel({0, 0}, :north, n) do
+    nn = div(n, 45)
+    rr = rem(n, 45)
+
+    if nn == 0 do
+      NaiveSnailor.travel({0, 0}, :north, n)
+    else
+      NaiveSnailor.travel({nn * 30 - 3, 3 + nn * 15}, :north, rr)
+    end
+  end
+end
+```
+
+```elixir
+defmodule SmartSnailor.Test do
+  use ExUnit.Case
+
+  test "fixed values" do
+    for n <- [0, 1, 2, 5, 10, 28, 103, 101, 1234] do
+      assert SmartSnailor.travel({0, 0}, :north, n) == NaiveSnailor.travel({0, 0}, :north, n)
+    end
+  end
+
+  test "random values" do
+    for _ <- 1..1000 do
+      n = Enum.random(1..100_000)
+      assert SmartSnailor.travel({0, 0}, :north, n) == NaiveSnailor.travel({0, 0}, :north, n)
+    end
+  end
+end
+
+ExUnit.run()
+```
+
+```elixir
+n = 100_000_000_000_000_000_079
+
+SmartSnailor.travel({0, 0}, :north, n)
+```
