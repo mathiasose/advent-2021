@@ -338,3 +338,212 @@ day_1 |> Sonar.parse_input() |> SlidingSonar.changes() |> Sonar.count()
 ```output
 %{decreased: 728, increased: 1217, same: 52}
 ```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 2
+
+Now, you need to figure out how to pilot this thing.
+
+It seems like the submarine can take a series of commands like forward 1, down 2, or up 3:
+
+* forward X increases the horizontal position by X units.
+* down X increases the depth by X units.
+* up X decreases the depth by X units.
+
+Note that since you're on a submarine, down and up affect your depth, and so they have the opposite result of what you might expect.
+
+The submarine seems to already have a planned course (your puzzle input). You should probably figure out where it's going. For example:
+
+```
+forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2
+```
+
+Your horizontal position and depth both start at 0. The steps above would then modify them as follows:
+
+* forward 5 adds 5 to your horizontal position, a total of 5.
+* down 5 adds 5 to your depth, resulting in a value of 5.
+* forward 8 adds 8 to your horizontal position, a total of 13.
+* up 3 decreases your depth by 3, resulting in a value of 2.
+* down 8 adds 8 to your depth, resulting in a value of 10.
+* forward 2 adds 2 to your horizontal position, a total of 15.
+
+After following these instructions, you would have a horizontal position of 15 and a depth of 10. (Multiplying these together produces 150.)
+
+Calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
+
+```elixir
+day_2_input = AoCInput.get_input(2)
+```
+
+```output
+"forward 4\ndown 7\ndown 4\nforward 2\ndown 4\ndown 9\ndown 1\nforward 1\ndown 4\nup 5\nforward 5\ndown 3\nforward 5\nforward 6\ndown 5\ndown 3\nforward 8\nup 7\nforward 1\nforward 5\nforward 7\nup 2\nup 7\ndown 1\ndown 6\nforward 7\nforward 6\ndown 7\nup 9\ndown 8\ndown 3\ndown 1\ndown 4\ndown 3\nforward 7\ndown 1\nforward 6\ndown 3\nforward 3\ndown 6\nforward 5\ndown 7\nup 5\nforward 7\nforward 9\nup 1\nforward 5\ndown 5\ndown 2\nforward 1\nup 7\ndown 8\ndown 2\nforward 8\nforward 1\nup 1\nup 5\nforward 9\nup 9\ndown 5\ndown 5\nforward 6\nforward 1\ndown 1\ndown 3\nup 6\nup 9\ndown 6\ndown 1\nforward 1\ndown 8\ndown 3\ndown 8\nup 6\nforward 2\nup 8\ndown 2\ndown 6\nforward 1\ndown 2\ndown 1\ndown 5\ndown 8\nforward 8\ndown 8\ndown 2\nup 1\nup 3\nforward 1\ndown 6\nup 5\nforward 5\nup 7\nforward 3\nforward 3\ndown 9\nforward 1\nforward 7\ndown 1\ndown 1\ndown 3\nforward 4\ndown 4\nforward 2\nup 8\nforward 2\ndown 4\ndown 2\nup 1\nforward 6\nforward 6\ndown 9\nforward 5\ndown 3\nforward 5\ndown 6\ndown 9\nforward 9\nup 6\ndown 8\nup 5\nup 2\nforward 5\ndown 4\nforward 8\nup 1\nforward 2\ndown 9\ndown 4\nup 7\ndown 1\ndown 6\ndown 7\ndown 7\ndown 2\ndown 2\nup 7\ndown 1\nup 7\nup 4\nforward 9\ndown 6\nup 3\ndown 5\nforward 8\nup 4\nforward 5\nforward 8\nforward 4\nforward 7\nforward 2\ndown 3\nup 4\nforward 7\nforward 3\ndown 7\nup 4\nforward 8\nforward 9\nforward 9\nup 6\nup 5\nforward 7\ndown 7\nup 5\ndown 9\ndown 8\nforward 5\nforward 2\ndown 1\ndown 2\ndown 9\nup 5\ndown 3\ndown 8\nup 6\nforward 9\ndown 9\nup 3\nup 9\nforward 3\nforward 9\ndown 5\nup 3\ndown 6\nforward 5\ndown 6\ndown 9\nforward 3\ndown 7\ndown 5\ndown 9\nforward 8\ndown 8\nforward 8\nforward 2\nup 6\ndown 9\ndown 7\ndown 4\ndown 2\ndown 9\nforward 7\nup 1\nforward 6\nforward 7\ndown 3\ndown 5\ndown 3\nforward 4\ndown 9\nforward 2\ndown 1\nforward 4\nup 9\ndown 8\ndown 9\nforward 5\nup 2\ndown 7\ndown 2\ndown 7\nforward 8\nup 8\nforward 9\nup 8\ndown 3\ndown 8\nforward 2\nup 7\nforward 4\nup 8\nforward 6\nforward 6\nforward 4\nforward 3\ndown 4\nup 7\ndown 8\nforward 1\nforward 9\nforward 8\nforward 8\ndown 6\ndown 6\ndown 4\ndown 8\nforward 9\ndown 8\ndown 4\nforward 2\nforward 7\ndown 4\nup 1\ndown 4\ndown 5\nup 5\nup 9\ndown 5\nup 5\nforward 2\ndown 8\nforward 7\nforward 2\nup 4\nforward 8\nup 7\ndown 5\nforward 5\ndown 5\ndown 6\ndown 7\nforward 1\ndown 8\nup 8\nup 9\nup 6\nforward 2\nforward 7\nforward 4\ndown 6\nup 4\nup 3\ndown 3\nforward 7\nup 9\ndown 9\nup 5\nforward 1\nup 7\ndown 7\ndown 7\nup 8\ndown 3\nforward 6\ndown 6\ndown 7\ndown 2\nforward 5\nup 8\nup 5\nup 1\ndown 5\nforward 9\nforward 9\nforward 2\nforward 6\nup 8\nforward 8\ndown 1\nforward 6\nup 7\nup 3\nforward 3\nup 5\ndown 8\nforward 2\ndown 5\ndown 5\nforward 8\nforward 8\nforward 6\nup 7\nup 1\nforward 1\ndown 7\ndown 1\nup 9\nforward 7\nup 6\ndown 2\ndown 5\nforward 1\ndown 1\nup 1\nforward 7\nforward 7\nforward 1\nup 2\nforward 2\ndown 9\ndown 8\nforward 9\nforward 8\nup 9\ndown 1\ndown 3\nup 1\ndown 3\nup 9\ndown 7\nup 6\ndown 1\ndown 2\ndown 2\ndown 4\nforward 4\nforward 3\ndown 7\nforward 9\nforward 1\ndown 2\ndown 2\ndown 4\ndown 7\nup 7\nforward 6\nforward 2\ndown 6\ndown 3\ndown 3\ndown 8\nup 8\nforward 6\ndown 8\ndown 3\nforward 7\ndown 4\ndown 4\nup 1\nup 8\nforward 5\nforward 6\ndown 8\ndown 9\nup 7\nforward 2\nforward 4\ndown 4\nforward 6\nforward 5\ndown 4\nup 5\ndown 5\nforward 1\ndown 2\nup 9\nforward 9\nforward 6\nforward 8\ndown 2\ndown 9\nup 1\nforward 6\ndown 3\nforward 6\nforward 7\ndown 9\nforward 1\nforward 1\nforward 5\nup 5\nup 6\nforward 8\nforward 6\nforward 6\nforward 8\ndown 6\ndown 8\nforward 5\nforward 7\nforward 3\nforward 3\nup 5\nforward 8\nup 3\nforward 6\nforward 4\nforward 3\nup 8\ndown 1\ndown 3\ndown 7\nup 8\nforward 5\ndown 9\nup 7\ndown 2\ndown 4\ndown 5\ndown 2\nup 3\ndown 4\ndown 4\nforward 4\nforward 6\nup 4\nforward 5\nforward 3\nup 2\nup 3\ndown 4\ndown 7\nforward 7\nforward 2\ndown 2\nforward 5\nup 4\nforward 2\ndown 8\nup 5\nup 6\nforward 2\nforward 3\nup 3\ndown 2\nforward 7\ndown 6\nforward 3\nforward 6\nup 9\nforward 7\nup 1\nforward 1\nforward 2\ndown 3\nforward 9\ndown 1\nup 5\nup 7\nup 8\ndown 5\nup 4\ndown 9\nforward 4\nup 8\nforward 3\nforward 7\ndown 7\ndown 9\ndown 5\nup 4\ndown 2\nup 5\ndown 4\nforward 3\ndown 7\nup 5\nforward 9\nforward 9\nforward 7\nup 5\nforward 7\nup 3\nforward 8\ndown 1\ndown 5\nup 5\nforward 4\nforward 9\nforward 9\nup 5\ndown 9\nup 7\nup 3\nforward 5\ndown 4\ndown 7\nforward 9\ndown 9\nup 3\nforward 4\nforward 7\ndown 9\nforward 2\ndown 2\nforward 1\ndown 2\nup 7\ndown 6\nforward 9\nforward 1\ndown 5\nforward 9\nforward" <> ...
+```
+
+```elixir
+defmodule Submarine do
+  defp move({x, y}, {:forward, n}), do: {x + n, y}
+  defp move({x, y}, {:down, n}), do: {x, y + n}
+  defp move({x, y}, {:up, n}), do: {x, y - n}
+
+  def read_instructions([]), do: []
+
+  def read_instructions([instruction | rest]) do
+    [i, n] = instruction |> String.split(" ")
+    i = i |> String.to_existing_atom()
+    {n, ""} = Integer.parse(n)
+
+    [{i, n}] ++ read_instructions(rest)
+  end
+
+  def travel([], {x, y}), do: {x, y}
+
+  def travel([{direction, n} | rest], {x, y}) do
+    rest |> travel(move({x, y}, {direction, n}))
+  end
+end
+
+defmodule Submarine.Test do
+  use ExUnit.Case
+
+  test "example" do
+    input = "forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2"
+
+    assert input
+           |> String.split("\n")
+           |> Submarine.read_instructions()
+           |> Submarine.travel({0, 0}) ==
+             {15, 10}
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 970687
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+{h, v} =
+  day_2_input
+  |> String.trim()
+  |> String.split("\n")
+  |> Submarine.read_instructions()
+  |> Submarine.travel({0, 0})
+
+h * v
+```
+
+```output
+1250395
+```
+
+### Part Two
+
+Based on your calculations, the planned course doesn't seem to make any sense. You find the submarine manual and discover that the process is actually slightly more complicated.
+
+In addition to horizontal position and depth, you'll also need to track a third value, aim, which also starts at 0. The commands also mean something entirely different than you first thought:
+
+* down X increases your aim by X units.
+* up X decreases your aim by X units.
+* forward X does two things:
+  * It increases your horizontal position by X units.
+  * It increases your depth by your aim multiplied by X.
+
+Again note that since you're on a submarine, down and up do the opposite of what you might expect: "down" means aiming in the positive direction.
+
+Now, the above example does something different:
+
+* forward 5 adds 5 to your horizontal position, a total of 5. Because your aim is 0, your depth does not change.
+* down 5 adds 5 to your aim, resulting in a value of 5.
+* forward 8 adds 8 to your horizontal position, a total of 13. Because your aim is 5, your depth increases by 8*5=40.
+* up 3 decreases your aim by 3, resulting in a value of 2.
+* down 8 adds 8 to your aim, resulting in a value of 10.
+* forward 2 adds 2 to your horizontal position, a total of 15. Because your aim is 10, your depth increases by 2*10=20 to a total of 60.
+
+After following these new instructions, you would have a horizontal position of 15 and a depth of 60. (Multiplying these produces 900.)
+
+Using this new interpretation of the commands, calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
+
+```elixir
+defmodule AimSubmarine do
+  defp move({x, y, aim}, {:forward, n}), do: {x + n, y + aim * n, aim}
+  defp move({x, y, aim}, {:down, n}), do: {x, y, aim + n}
+  defp move({x, y, aim}, {:up, n}), do: {x, y, aim - n}
+
+  def travel([], {x, y, aim}), do: {x, y, aim}
+
+  def travel([{direction, n} | rest], {x, y, aim}) do
+    rest |> travel(move({x, y, aim}, {direction, n}))
+  end
+end
+
+defmodule AimSubmarine.Test do
+  use ExUnit.Case
+
+  test "example" do
+    input = "forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2"
+
+    {15, 60, _} =
+      input
+      |> String.split("\n")
+      |> Submarine.read_instructions()
+      |> AimSubmarine.travel({0, 0, 0})
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 970687
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+{h, v, aim} =
+  day_2_input
+  |> String.trim()
+  |> String.split("\n")
+  |> Submarine.read_instructions()
+  |> AimSubmarine.travel({0, 0, 0})
+
+h * v
+```
+
+```output
+1451210346
+```
