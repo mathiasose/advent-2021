@@ -19,76 +19,7 @@ Mix.install([
 alias VegaLite, as: Vl
 alias NimbleCSV.RFC4180, as: CSV
 
-ExUnit.start(autorun: false)
-```
-
-```output
-Resolving Hex dependencies...
-Dependency resolution completed:
-New:
-  certifi 2.8.0
-  hackney 1.18.0
-  httpoison 1.8.0
-  idna 6.1.1
-  jason 1.2.2
-  kino 0.3.1
-  metrics 1.0.1
-  mimerl 1.2.0
-  nimble_csv 1.1.0
-  nimble_parsec 1.2.0
-  parse_trans 3.3.1
-  ssl_verify_fun 1.1.6
-  unicode_util_compat 0.7.0
-  vega_lite 0.1.2
-* Getting httpoison (Hex package)
-* Getting jason (Hex package)
-* Getting vega_lite (Hex package)
-* Getting kino (Hex package)
-* Getting nimble_csv (Hex package)
-* Getting nimble_parsec (Hex package)
-* Getting hackney (Hex package)
-* Getting certifi (Hex package)
-* Getting idna (Hex package)
-* Getting metrics (Hex package)
-* Getting mimerl (Hex package)
-* Getting parse_trans (Hex package)
-* Getting ssl_verify_fun (Hex package)
-* Getting unicode_util_compat (Hex package)
-===> Analyzing applications...
-===> Compiling parse_trans
-===> Analyzing applications...
-===> Compiling mimerl
-==> nimble_parsec
-Compiling 4 files (.ex)
-Generated nimble_parsec app
-===> Analyzing applications...
-===> Compiling metrics
-===> Analyzing applications...
-===> Compiling unicode_util_compat
-===> Analyzing applications...
-===> Compiling idna
-==> vega_lite
-Compiling 5 files (.ex)
-Generated vega_lite app
-==> kino
-Compiling 14 files (.ex)
-Generated kino app
-==> nimble_csv
-Compiling 1 file (.ex)
-Generated nimble_csv app
-==> jason
-Compiling 8 files (.ex)
-Generated jason app
-==> ssl_verify_fun
-Compiling 7 files (.erl)
-Generated ssl_verify_fun app
-===> Analyzing applications...
-===> Compiling certifi
-===> Analyzing applications...
-===> Compiling hackney
-==> httpoison
-Compiling 3 files (.ex)
-Generated httpoison app
+ExUnit.start(autorun: false, exclude: [:skip])
 ```
 
 ```output
@@ -214,12 +145,14 @@ ExUnit.run()
 ```
 
 ```output
+Excluding tags: [:skip]
+
 ..
 
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 2 tests, 0 failures
 
-Randomized with seed 483893
+Randomized with seed 807350
 ```
 
 ```output
@@ -370,12 +303,14 @@ ExUnit.run()
 ```
 
 ```output
+Excluding tags: [:skip]
+
 ...
 
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 3 tests, 0 failures
 
-Randomized with seed 483893
+Randomized with seed 807350
 ```
 
 ```output
@@ -483,12 +418,14 @@ end
 ```
 
 ```output
+Excluding tags: [:skip]
+
 .
 
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 483893
+Randomized with seed 807350
 ```
 
 ```output
@@ -554,12 +491,14 @@ ExUnit.run()
 ```
 
 ```output
+Excluding tags: [:skip]
+
 .
 
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 483893
+Randomized with seed 807350
 ```
 
 ```output
@@ -607,12 +546,14 @@ ExUnit.run()
 ```
 
 ```output
+Excluding tags: [:skip]
+
 ..
 
-Finished in 0.7 seconds (0.00s async, 0.7s sync)
+Finished in 0.6 seconds (0.00s async, 0.6s sync)
 2 tests, 0 failures
 
-Randomized with seed 483893
+Randomized with seed 807350
 ```
 
 ```output
@@ -735,12 +676,14 @@ ExUnit.run()
 ```
 
 ```output
+Excluding tags: [:skip]
+
 .
 
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 483893
+Randomized with seed 807350
 ```
 
 ```output
@@ -753,4 +696,334 @@ day_5_input |> FamilyTreeNode.solve()
 
 ```output
 150
+```
+
+```elixir
+alt_input =
+  Util.Http.get_text(
+    "https://julekalender-backend.knowit.no/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbWtDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--07d7ffa3a86a8b469f635f10c3abf2d593e1449d/tree2.txt"
+  )
+
+alt_input
+|> FamilyTreeNode.solve()
+```
+
+```output
+994
+```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 6
+
+Alvene jobber på spreng med å pakke gaver høyt oppe i etasjene i Nissens verksted. Her oppe pakkes det bare pakker samme høyde og bredde, men med varierende lengde. Når en pakke er ferdig dyttes den ned over kanten. Pakkene faller så rett nedover og danner etterhvert en lang og høy stabel (à la Tetris). Dessverre så lander ikke alle pakker like stabilt på denne stabelen så mange av pakkene vil falle av.
+
+Filen pakker.txt inneholder en liste over alle pakkene som blir sluppet. Tallet før komma er posisjonen til venstre kant av pakken og tallet etter komma er lengden på pakken. Alle pakker havner med både venstre og høyre kant mellom posisjon 0 og 20. Alle pakker har samme høyde.
+
+En pakke lander ustabilt og vil falle av stabelen hvis midtpunktet til pakken havner utenfor eller på kanten av de første pakkene den lander på. Hvis en pakke faller av kan denne ignoreres videre. Den vil altså ikke blokkere for de resterende pakkene.
+
+Hvor mange av pakkene faller av stabelen?
+
+```elixir
+day_6_input =
+  "https://julekalender-backend.knowit.no/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBallDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--20b29549a475416a15aa81ff11b00da4c4103e67/pakker.txt?disposition=inline"
+  |> Util.Http.get_text()
+```
+
+```output
+"5,8\n14,5\n10,8\n0,5\n7,2\n19,1\n4,8\n8,2\n8,4\n5,6\n8,7\n0,7\n15,2\n15,4\n1,6\n11,2\n1,4\n14,4\n2,8\n2,1\n12,4\n1,1\n0,1\n5,8\n13,7\n17,1\n4,2\n7,5\n11,8\n7,6\n0,7\n13,1\n15,2\n8,7\n6,7\n11,5\n14,2\n0,6\n10,2\n7,1\n17,2\n11,7\n4,1\n8,1\n5,5\n6,1\n1,5\n10,8\n8,7\n10,3\n8,4\n10,6\n8,7\n4,3\n15,4\n3,8\n5,7\n6,8\n5,7\n4,1\n9,3\n1,6\n17,1\n9,4\n9,4\n11,1\n14,2\n15,5\n5,5\n12,2\n3,8\n1,4\n3,6\n12,2\n9,5\n1,7\n6,4\n12,2\n7,2\n1,7\n4,7\n8,7\n18,1\n5,7\n12,2\n7,8\n17,1\n9,1\n6,8\n11,6\n8,4\n6,3\n8,8\n16,2\n12,8\n7,1\n3,6\n11,7\n0,7\n4,4\n11,5\n10,2\n5,2\n17,1\n12,5\n5,7\n1,8\n5,8\n3,8\n10,3\n15,1\n7,7\n7,6\n9,2\n2,3\n8,1\n13,6\n12,7\n11,4\n7,8\n14,4\n15,4\n4,6\n1,6\n2,6\n14,1\n0,3\n3,4\n14,6\n0,1\n16,4\n1,8\n4,3\n1,7\n9,5\n12,7\n9,7\n16,3\n0,4\n15,3\n1,2\n1,7\n10,7\n6,1\n6,6\n15,3\n12,7\n6,2\n8,5\n13,6\n13,6\n4,7\n9,8\n15,2\n3,2\n2,2\n3,3\n14,6\n3,5\n3,4\n4,6\n5,6\n4,4\n8,7\n9,8\n14,3\n4,6\n5,6\n1,8\n1,7\n8,1\n3,5\n12,2\n5,5\n6,8\n16,3\n11,6\n8,7\n0,4\n10,6\n11,1\n11,7\n5,7\n11,8\n16,4\n1,8\n0,4\n13,6\n7,7\n10,1\n0,4\n9,4\n4,3\n9,7\n12,5\n10,6\n5,2\n11,7\n0,3\n8,2\n6,1\n7,5\n6,8\n7,4\n0,2\n6,6\n3,3\n14,6\n4,8\n11,5\n6,6\n11,2\n2,4\n3,6\n7,8\n2,4\n9,7\n1,4\n1,8\n10,4\n2,8\n3,3\n4,6\n9,6\n12,5\n6,5\n0,8\n13,6\n0,6\n9,3\n3,6\n6,8\n15,1\n11,7\n4,5\n1,5\n10,1\n6,2\n6,8\n8,6\n2,2\n0,8\n1,2\n16,3\n13,7\n9,8\n7,4\n4,6\n11,5\n17,2\n1,6\n1,1\n5,3\n0,1\n14,1\n5,8\n15,3\n8,1\n0,6\n0,3\n12,8\n17,2\n8,2\n2,2\n5,2\n6,6\n3,2\n9,6\n1,5\n12,8\n3,5\n10,6\n9,1\n12,8\n19,1\n3,1\n3,4\n9,1\n2,4\n5,5\n8,6\n4,2\n2,8\n14,5\n13,7\n13,5\n6,2\n4,4\n10,4\n1,2\n3,3\n17,1\n1,8\n2,7\n8,7\n6,6\n13,7\n15,3\n12,1\n6,7\n6,7\n5,2\n14,1\n16,4\n0,7\n7,1\n9,6\n1,7\n0,8\n7,8\n7,8\n5,8\n8,4\n7,5\n13,4\n0,8\n11,8\n12,1\n3,5\n6,1\n4,4\n17,1\n6,2\n11,6\n2,6\n8,5\n13,5\n12,6\n4,8\n2,8\n6,8\n1,6\n12,4\n11,1\n11,7\n3,6\n2,8\n0,2\n8,3\n13,4\n10,2\n12,3\n2,8\n13,7\n9,8\n9,7\n16,2\n5,6\n14,2\n18,2\n1,1\n0,2\n6,3\n1,7\n8,8\n11,4\n14,5\n3,8\n11,5\n3,1\n6,8\n0,8\n0,3\n10,6\n13,5\n18,2\n3,8\n9,5\n12,7\n10,3\n12,3\n1,5\n7,6\n10,8\n2,5\n7,3\n0,8\n18,2\n2,6\n7,8\n2,2\n10,7\n14,5\n3,5\n10,5\n0,2\n8,8\n10,3\n12,4\n5,1\n0,5\n0,6\n6,8\n14,5\n13,2\n6,4\n0,2\n0,6\n7,5\n3,8\n8,6\n5,4\n1,8\n1,5\n6,2\n14,6\n3,8\n11,4\n3,2\n7,7\n4,3\n10,5\n10,8\n16,4\n10,5\n0,1\n10,5\n7,5\n11,3\n10,4\n8,3\n15,4\n2,1\n2,6\n12,1\n5,2\n12,3\n8,1\n7,6\n10,6\n1,6\n15,5\n6,3\n8,6\n7,7\n11,1\n9,5\n11,5\n6,4\n8,4\n10,8\n12,1\n0,4\n6,7\n3,3\n8,3\n11,5\n6,7\n3,2\n8,4\n3,3\n6,4\n0,5\n0,5\n12,8\n0,1\n15,2\n16,2\n10,2\n11,8\n8,7\n5,4\n6,6\n8,4\n0,4\n6,8\n0,8\n16,3\n8,6\n5,2\n12,7\n0,5\n4,7\n7,2\n7,7\n5,6\n11,2\n11,8\n4,6\n9,2\n0,7\n9,1\n0,8\n2,8\n1,6\n9,2\n15,3\n12,6\n15,1\n19,1\n15,5\n0,3\n12,1\n0,2\n12,1\n3,2\n6,1\n6,6\n1,7\n16,1\n9,8\n7,3\n13,2\n10,7\n3,8\n15,5\n4,8\n1,5\n7,2\n0,1\n13,6\n8,2\n6,3\n7,7\n11,5\n16,3\n7,7\n13,7\n19,1\n5,4\n11,3\n13,7\n11,4\n1,7\n2,7\n11,4\n4,5\n2,8\n3,7\n1,3\n4,1\n0,6\n16,3\n3,8\n2,2\n5,2\n12,8\n10,2\n14,1\n0,6\n7,6\n17,2\n12,6\n17,2\n6,6\n9,3\n12,3\n10,2\n5,8\n13,1\n3,6\n5,1\n2,5\n13,6\n0,6\n15,4\n3,7\n9,8\n18,2\n5,5\n1,1\n1,6\n8,3\n5,3\n3,8\n9,3\n7,7\n3,2\n10,8\n0,7\n4,8\n9,7\n1,4\n4,5\n13,5\n1,5\n8,6\n17,2\n0,6\n8,8\n12,2\n12,1\n4,8\n18,2\n8,8\n18,2\n14,3\n12,8\n10,2\n15,5\n10,7\n15,1\n15,2\n11,5\n6,8\n1,7\n13,7\n5,4\n9,8\n0,8\n13,3\n2,4\n14,4\n14,5\n7,6\n4,1\n10,6\n10,7\n1,5\n4,6\n4,8\n4,2\n3,2\n13,5\n13,4\n5,2\n11,5\n5,2\n11,2\n9,4\n5,7\n5,6\n0,2\n13,4\n2,8\n9,3\n6,6\n11,1\n15,5\n6,5\n11,5\n12,6\n11,4\n11,4\n2,5\n3,2\n16,3\n12,1\n0,2\n1,1\n5,8\n0,5\n13,6\n14,4\n9,5\n3,6\n14,6\n8,3\n0,4\n13,4\n18,1\n12,1\n6,1\n15,2\n15,1\n7,8\n2,8\n14,6\n0,7\n15,3\n2,5\n3,2\n0,7\n7,2\n0,6\n7,4\n3,1\n8,7\n5,8\n3,7\n1,3\n10,6\n2,3\n9,2\n4,1\n8,5\n12,8\n0,7\n0,4\n8,2\n3,5\n13,4\n10,1\n1,7\n4,5\n8,3\n1,7\n8,2\n1,7\n5,3\n0,6\n3,3\n0,3\n15,1\n12,3\n2,3\n13,6\n13,3\n12,8\n13,2\n9,2\n1,8\n0,8\n10,7\n0,4\n8,8\n10,6\n8,6\n9,5\n4,2\n9,1\n15,2\n9,3\n12,7\n4,3\n9,4\n0,7\n5,3\n1,8\n13,1\n0,5\n3,7\n8,6\n9,7\n8,8\n9,8\n3,5\n0,8\n11,5\n0,8\n9,5\n4,5\n0,7\n18,2\n7,5\n9,5\n2,5\n17,2\n9,3\n10,3\n4,2\n7,4\n5,3\n6,4\n9,6\n1,7\n8,2\n6,3\n9,4\n2,3\n18,1\n3,1\n9,4\n15,5\n7,7\n4,4\n10,2\n1,5\n15,3\n12,4\n15,2\n16,1\n11,6\n3,5\n13,6\n9,7\n1,4\n18,1\n4,1\n7,6\n0,4\n15,2\n13,4\n14,1\n3,2\n6,5\n5,3\n8,4\n3,4\n11,5\n0,7\n2,8\n1,6\n2,4\n7,6\n16,4\n3,4\n0,8\n18,2\n15,5\n5,6\n13,4\n3,4\n11,3\n13,1\n4,2\n0,7\n2,2\n1,3\n13,7\n16,4\n0,6\n13,6\n5,6\n9,7\n10,7\n13,5\n10,1\n4,6\n4,7\n10,1\n6,2\n5,1\n10,8\n6,7\n15,3\n0,6\n6,8\n7,3\n1,7\n4,8\n2,8\n6,2\n8,4\n16,2\n11,5\n8,7\n9,7\n6,7\n3,5\n8,8\n4,3\n16,4\n7,3\n2,3\n3,7\n6,3\n18,2\n3,4\n17,2\n12,3\n2,4\n5,5\n3,8\n16,4\n12,1\n7,5\n8,4\n7,7\n4,4\n0,6\n18,2\n7,3\n14,4\n0,5\n11,1\n6,7\n15,5\n1,7\n16,4\n4,7\n4,5\n6,3\n12,2\n6,5\n6,1\n8,4\n3,6\n12,8\n1,6\n4,1\n7,7\n2,2\n19,1\n15,4\n8,3\n17,3\n0,2\n14,1\n3,7\n0,7\n9,5\n6,8\n7,8\n12,6\n7,8\n3,5\n19,1\n7,7\n4,8\n0,8\n15,4\n14,3\n3,6\n11,6\n3,6\n9,6\n12,4\n2,6\n12,2\n0,1\n0,4\n13,3\n2,8\n4,1\n7,8\n12,7\n14,2\n13,3\n9,5\n3,4\n6,5\n14,2\n10,8\n0,1\n4,3\n12,5\n8,1\n14,4\n0,1\n14,6\n13,5\n3,1\n6,3\n3,1\n2,7\n12,6\n13,2\n6,1\n1,7\n4,3\n11,3\n7,3\n3,1\n9,1\n11,3\n15,4\n18,2\n11,7\n15,1" <> ...
+```
+
+```elixir
+defmodule Layer do
+  import Bitwise
+
+  defstruct [:data]
+
+  @width 20
+  @empty_layer for _ <- 0..@width, do: 0
+
+  def new({x, w}) do
+    %Layer{
+      data:
+        for(
+          i <- 0..@width,
+          do:
+            if i >= x and i < x + w do
+              1
+            else
+              0
+            end
+        )
+    }
+  end
+
+  def empty, do: %Layer{data: @empty_layer}
+
+  def merge(%Layer{} = a, %Layer{} = b) do
+    if overlaps?(a, b) do
+      throw(:error)
+    else
+      %Layer{
+        data:
+          Stream.zip(a.data, b.data)
+          |> Enum.map(fn {aa, bb} -> aa ||| bb end)
+      }
+    end
+  end
+
+  def overlaps?(%Layer{data: a}, %Layer{data: b}) do
+    Stream.zip(a, b)
+    |> Stream.map(fn {aa, bb} -> aa &&& bb end)
+    |> Enum.any?(fn x -> x == 1 end)
+  end
+
+  def is_supported?(%Layer{} = top, %Layer{} = bottom) do
+    w = Enum.sum(top.data)
+    x = Enum.find_index(top.data, fn x -> x == 1 end)
+    odd? = rem(w, 2) == 1
+    h = div(w, 2)
+
+    left_half =
+      if odd? do
+        Layer.new({x, h + 1})
+      else
+        Layer.new({x, h})
+      end
+
+    right_half =
+      if odd? do
+        Layer.new({x + h, h + 1})
+      else
+        Layer.new({x + h, h})
+      end
+
+    overlaps?(left_half, bottom) and overlaps?(right_half, bottom)
+  end
+
+  def stacks?(%Layer{} = top, %Layer{} = bottom) do
+    cond do
+      not overlaps?(top, bottom) -> false
+      is_supported?(top, bottom) -> true
+      true -> false
+    end
+  end
+end
+
+defmodule PackStack do
+  defstruct layers: [Layer.empty()]
+
+  def add_next(next, stack, lost \\ 0)
+
+  def add_next(%Layer{} = next, %PackStack{layers: []}, 0), do: {%PackStack{layers: [next]}, 0}
+
+  def add_next(%Layer{} = next, %PackStack{} = stack, lost) do
+    stack.layers
+    |> Enum.find_index(fn layer -> Layer.overlaps?(next, layer) end)
+    |> case do
+      nil ->
+        combined = Enum.at(stack.layers, -1) |> Layer.merge(next)
+        updated_layers = stack.layers |> List.replace_at(-1, combined)
+
+        {%PackStack{layers: updated_layers}, lost}
+
+      i when i >= 0 ->
+        bottom = Enum.at(stack.layers, i)
+
+        if Layer.is_supported?(next, bottom) do
+          target_layer = i - 1
+
+          updated_layers =
+            if target_layer == -1 do
+              [next] ++ stack.layers
+            else
+              combined = Enum.at(stack.layers, target_layer) |> Layer.merge(next)
+              stack.layers |> List.replace_at(target_layer, combined)
+            end
+
+          {%PackStack{layers: updated_layers}, lost}
+        else
+          {stack, lost + 1}
+        end
+    end
+  end
+
+  def parse_input(input) do
+    input
+    |> String.trim()
+    |> String.split("\n")
+    |> Enum.map(fn s ->
+      [x, w] = s |> String.split(",")
+      {x, ""} = Integer.parse(x)
+      {w, ""} = Integer.parse(w)
+      {x, w}
+    end)
+    |> Enum.map(fn {x, w} -> Layer.new({x, w}) end)
+  end
+
+  def pretty_print(%PackStack{layers: layers}, opts \\ []) do
+    bottom = Keyword.get(opts, :bottom, -1)
+
+    layers
+    |> Enum.slice(-bottom..-1)
+    |> Enum.map(fn layer ->
+      layer.data
+      |> Enum.join("")
+      |> String.replace("0", " ")
+      |> String.replace("1", "█")
+      |> IO.puts()
+    end)
+  end
+end
+```
+
+```output
+{:module, PackStack, <<70, 79, 82, 49, 0, 0, 23, ...>>, {:pretty_print, 2}}
+```
+
+```elixir
+defmodule PackStack.Test do
+  use ExUnit.Case
+
+  import PackStack
+
+  test "merge" do
+    assert Layer.merge(Layer.empty(), Layer.empty()) == Layer.empty()
+    assert Layer.merge(Layer.empty(), Layer.new({0, 6})) == Layer.new({0, 6})
+
+    assert Layer.merge(Layer.new({0, 6}), Layer.new({8, 1})) == %Layer{
+             data: [1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+           }
+  end
+
+  test "overlaps?" do
+    assert Layer.overlaps?(Layer.empty(), Layer.empty()) == false
+    assert Layer.overlaps?(Layer.empty(), Layer.new({0, 6})) == false
+    assert Layer.overlaps?(Layer.new({0, 6}), Layer.new({0, 1})) == true
+    assert Layer.overlaps?(Layer.new({4, 3}), Layer.new({2, 4})) == true
+    assert Layer.overlaps?(Layer.new({4, 3}), Layer.new({0, 5})) == true
+  end
+
+  test "is_supported?" do
+    l1 = %Layer{
+      data: [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    }
+
+    assert Layer.is_supported?(Layer.new({0, 1}), l1) == true
+    assert Layer.is_supported?(Layer.new({2, 4}), l1) == false
+    assert Layer.is_supported?(Layer.new({0, 5}), l1) == true
+  end
+
+  test "stacks?" do
+    l1 = %Layer{
+      data: [1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    }
+
+    assert Layer.stacks?(Layer.new({0, 1}), l1) == true
+
+    assert Layer.stacks?(Layer.new({2, 4}), l1) == true
+  end
+
+  test "example" do
+    input = "0,6
+0,1
+4,3
+2,4
+0,5"
+
+    {_result, lost} =
+      input
+      |> parse_input
+      |> Enum.reduce(
+        {%PackStack{layers: []}, 0},
+        fn layer, {stack, lost} ->
+          add_next(layer, stack, lost)
+        end
+      )
+
+    assert lost == 1
+  end
+
+  test "modified example" do
+    input = "0,3
+3,3
+0,1
+4,3
+2,4
+0,5"
+
+    {_result, lost} =
+      input
+      |> parse_input
+      |> Enum.reduce(
+        {%PackStack{layers: []}, 0},
+        fn layer, {stack, lost} ->
+          add_next(layer, stack, lost)
+        end
+      )
+
+    assert lost == 1
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+Excluding tags: [:skip]
+
+......
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+6 tests, 0 failures
+
+Randomized with seed 807350
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 6}
+```
+
+```elixir
+{result, lost} =
+  day_6_input
+  |> PackStack.parse_input()
+  |> Enum.reduce(
+    {%PackStack{layers: []}, 0},
+    fn layer, {stack, lost} ->
+      PackStack.add_next(layer, stack, lost)
+    end
+  )
+
+result
+|> PackStack.pretty_print(bottom: 20)
+
+lost
+```
+
+```output
+ ███████ ████        
+   █████████         
+     ███████         
+      ████████   █   
+     ███████     ██  
+        ████████████ 
+          ███    █   
+        ███████████  
+          ████████   
+           ███████   
+              ██     
+      █    █████     
+     █████   █ ████  
+       ██  ████████  
+       █████     █   
+    ████████████████ 
+    █   ██    ████   
+█   ████████   ██    
+███    ██ ████████   
+█████████████ ██████ 
+```
+
+```output
+5440
 ```
