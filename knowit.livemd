@@ -152,7 +152,7 @@ Excluding tags: [:skip]
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 2 tests, 0 failures
 
-Randomized with seed 807350
+Randomized with seed 659678
 ```
 
 ```output
@@ -310,7 +310,7 @@ Excluding tags: [:skip]
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 3 tests, 0 failures
 
-Randomized with seed 807350
+Randomized with seed 659678
 ```
 
 ```output
@@ -425,7 +425,7 @@ Excluding tags: [:skip]
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 807350
+Randomized with seed 659678
 ```
 
 ```output
@@ -498,7 +498,7 @@ Excluding tags: [:skip]
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 807350
+Randomized with seed 659678
 ```
 
 ```output
@@ -550,10 +550,10 @@ Excluding tags: [:skip]
 
 ..
 
-Finished in 0.6 seconds (0.00s async, 0.6s sync)
+Finished in 0.7 seconds (0.00s async, 0.7s sync)
 2 tests, 0 failures
 
-Randomized with seed 807350
+Randomized with seed 659678
 ```
 
 ```output
@@ -683,7 +683,7 @@ Excluding tags: [:skip]
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 807350
+Randomized with seed 659678
 ```
 
 ```output
@@ -977,7 +977,7 @@ Excluding tags: [:skip]
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 6 tests, 0 failures
 
-Randomized with seed 807350
+Randomized with seed 659678
 ```
 
 ```output
@@ -1026,4 +1026,99 @@ lost
 
 ```output
 5440
+```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 7
+
+Nissen holder i en strikk som er festet i veggen og som er strukket 20cm. Han ser at det er en maur, én centimeter fra veggen innpå strikken. Nissen er veldig redd maur 😱 se: myrmecofobi men mauren er veldig glad i Nissen 🤗💘. Strikken er magisk og kan strekkes i det uendelige.
+
+Det som skjer videre er som følger:
+
+* Nissen gjør et lite steg på 20cm vekk fra veggen, stopper opp og ser på mauren.
+* Mauren beveger seg 1 cm langs strikken mot Nissen, stopper opp og beundrer Nissen.
+  * Steg 1 og 2 gjentar seg helt til mauren kommer frem til nissen.
+
+Hvor lang blir strikken før mauren har kommet frem til nissen? Svar i antall meter rundet ned uten benevning. Svar -1 hvis det ikke finnes noen løsning.
+
+```elixir
+defmodule AntOnARope do
+  defstruct length: 20, ant_pos: 1
+
+  def stretch(%AntOnARope{length: l, ant_pos: ant_pos}) do
+    new_l = l + 20
+
+    new_ant_pos = ant_pos / l * new_l
+
+    %AntOnARope{length: new_l, ant_pos: new_ant_pos}
+  end
+
+  def advance(%AntOnARope{length: l, ant_pos: ant_pos}),
+    do: %AntOnARope{length: l, ant_pos: ant_pos + 1}
+
+  def has_ant_reached_end?(%AntOnARope{length: l, ant_pos: ant_pos}), do: ant_pos >= l
+
+  def solve(rope) do
+    if AntOnARope.has_ant_reached_end?(rope) do
+      rope
+    else
+      rope
+      |> stretch()
+      |> advance()
+      |> solve()
+    end
+  end
+end
+```
+
+```output
+{:module, AntOnARope, <<70, 79, 82, 49, 0, 0, 12, ...>>, {:solve, 1}}
+```
+
+```elixir
+defmodule AntOnARope.Test do
+  use ExUnit.Case
+
+  import AntOnARope
+
+  test "example" do
+    step0 = %AntOnARope{}
+
+    step1a = step0 |> stretch()
+    step1b = step1a |> advance()
+
+    assert step1b == %AntOnARope{length: 40, ant_pos: 3}
+
+    step2a = step1b |> stretch()
+    step2b = step2a |> advance()
+
+    assert step2b == %AntOnARope{length: 60, ant_pos: 5.5}
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+Excluding tags: [:skip]
+
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 659678
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+AntOnARope.solve(%AntOnARope{})
+```
+
+```output
+%AntOnARope{ant_pos: 5448012000.442013, length: 5448012000}
 ```
