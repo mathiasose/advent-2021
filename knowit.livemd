@@ -1349,3 +1349,77 @@ Enum.max(sorted) |> IO.inspect()
 ```output
 {551, 421}
 ```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 9
+
+Hvert år fyller nissen opp sleden med alle pakkene han får plass til og gir akkurat like mange pakker til hvert barn. Antallet pakker hvert barn får vil variere fra år til år, men ref Juleloven §3 aldri mer enn 2000 pakker. Antallet pakker i sleden er konstant og alle pakker som er til overs blir tatt med tilbake til verkstedet for resirkulering.
+
+Liste over snille barn som skal ha pakker, antall pakker til overs og antall snille barn er registrert i følgende liste:
+
+```
+År    Pakker til overs  # Snille barn
+2019    1854803357        2424154637
+2020    2787141611        2807727397
+2021    1159251923        2537380333
+```
+
+Julelover:
+
+```
+§1: Alle snille barn får minst 1 pakke hver.
+§2: Alle barn skal få likt antall pakker.
+§3: Antall pakker per barn kan aldri overstige 2000 i en og samme jul.
+§4: Nissen kan ikke ha en sekk som rommer over 10^13 pakker.
+```
+
+Som et miljøtiltak vil Revisoralven finne ut hvor mange pakker sleden kan romme men har ikke tid til å telle hver enkelt pakke og lurer på om du kan hjelpe ved å bruke listen over pakker som kommer i retur?
+
+```elixir
+defmodule ChineseRemainderTheorem do
+  def extended_gcd(a, b) do
+    {last_remainder, last_x} = extended_gcd(abs(a), abs(b), 1, 0, 0, 1)
+    {last_remainder, last_x * if(a < 0, do: -1, else: 1)}
+  end
+
+  defp extended_gcd(last_remainder, 0, last_x, _, _, _), do: {last_remainder, last_x}
+
+  defp extended_gcd(last_remainder, remainder, last_x, x, last_y, y) do
+    quotient = div(last_remainder, remainder)
+    remainder2 = rem(last_remainder, remainder)
+    extended_gcd(remainder, remainder2, x, last_x - quotient * x, y, last_y - quotient * y)
+  end
+
+  def inverse(e, et) do
+    {g, x} = extended_gcd(e, et)
+    if g != 1, do: raise("The maths are broken!")
+    rem(x + et, et)
+  end
+
+  def solve(input) do
+    as = input |> Enum.map(fn {a, _} -> a end)
+
+    ns = input |> Enum.map(fn {_, mod} -> mod end)
+    n = Enum.product(ns)
+
+    ys = 0..(length(input) - 1) |> Enum.map(fn i -> n |> div(Enum.at(ns, i)) end)
+    zs = 0..(length(input) - 1) |> Enum.map(fn i -> inverse(Enum.at(ys, i), Enum.at(ns, i)) end)
+
+    Enum.zip([as, ys, zs])
+    |> Enum.map(fn {a, y, z} -> a * y * z end)
+    |> Enum.sum()
+    |> rem(n)
+  end
+end
+
+ChineseRemainderTheorem.solve([
+  {1_854_803_357, 2_424_154_637},
+  {2_787_141_611, 2_807_727_397},
+  {1_159_251_923, 2_537_380_333}
+])
+```
+
+```output
+2515703161926
+```
