@@ -46,7 +46,7 @@ end
 
 ```elixir
 defmodule Util.Counter do
-  defstruct [:items]
+  defstruct items: %{}
 
   def new(items, default_keys \\ []) do
     defaults = default_keys |> Enum.map(fn key -> {key, 0} end) |> Enum.into(%{})
@@ -58,6 +58,10 @@ defmodule Util.Counter do
     }
   end
 
+  def merge(%Util.Counter{items: a}, %Util.Counter{items: b}) do
+    %Util.Counter{items: Map.merge(a, b, fn _k, v1, v2 -> v1 + v2 end)}
+  end
+
   def most_common(counter, n \\ 10) do
     counter.items
     |> Map.to_list()
@@ -66,11 +70,11 @@ defmodule Util.Counter do
   end
 end
 
-Util.Counter.new(~w/A B C B C D/, ["F"]) |> Util.Counter.most_common(15)
+Util.Counter.new(~w/A B C B C D/, ["F"]) |> Util.Counter.merge(Util.Counter.new(~w/A B C/))
 ```
 
 ```output
-[{"C", 2}, {"B", 2}, {"D", 1}, {"A", 1}, {"F", 0}]
+%Util.Counter{items: %{"A" => 2, "B" => 3, "C" => 3, "D" => 1, "F" => 0}}
 ```
 
 <!-- livebook:{"branch_parent_index":0} -->
@@ -1121,4 +1125,227 @@ AntOnARope.solve(%AntOnARope{})
 
 ```output
 %AntOnARope{ant_pos: 5448012000.442013, length: 5448012000}
+```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 8
+
+For å spare tid på selveste julenatten har Julenissen i alle år pleid å ansette en et lite kontinent av alver for å løse Vandrende Nissemann-problemet slik at Nissen kan levere pakkene sine og komme hjem til Nissemor før natten er omme. Dette tror Nissen er økonomisk uforsvarlig dersom han bare hadde et ordentlig redskap til å hjelpe dele ut pakker!
+
+Han setter alvene sine i gang og de kommer snart tilbake med et svar: Pakkeslyngen 3000. Dette vidunderlige redskapet sprer pakker ut fra sleden mens den flyr, i et rektangulært mønster. Noen områder vil få flere gaver, men det mener Nissen er verd bryet når han kan sparke hundretusenvis av alver.
+
+Julenissen flyr fra by til by og slipper pakker rundt seg med Pakkeslyngen 3000. Pakkene blir sluppet i et rektangel fra og med der han starter, til men ikke med der han lander.
+
+Denne inputfilen beskriver Julenissens destinasjoner og ruta han følger. De første 200 linjene beskriver byenes lokasjoner på format (x,y), deretter følger ruta med én lokasjon (0-indeksert) per linje til slutten av fila. Han starter på den første lokasjonen og besøker hver lokasjon i rekkefølge. Han kan besøke hver lokasjon flere ganger. Julenissen er en fjern slektning av Pythagoras og beveger seg aldri i en rett linje, dette medfører at det aldri blir lange linjer med tett pakkedistribuering. Ingen koordinater er høyere enn eller lik 1000.
+
+```elixir
+day_8_input =
+  "https://julekalender-backend.knowit.no/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcEVDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--c58f01ade88c36b61eda8ecd198328de54f47160/input.txt?disposition=inline"
+  |> Util.Http.get_text()
+```
+
+```output
+"(542,63)\n(567,83)\n(963,562)\n(916,718)\n(987,818)\n(295,549)\n(539,239)\n(720,660)\n(381,540)\n(870,550)\n(285,805)\n(233,308)\n(755,360)\n(514,401)\n(560,233)\n(883,882)\n(41,119)\n(38,341)\n(236,642)\n(413,747)\n(465,809)\n(929,743)\n(70,788)\n(343,223)\n(909,306)\n(682,738)\n(733,463)\n(85,359)\n(594,635)\n(756,511)\n(717,579)\n(862,62)\n(274,63)\n(918,774)\n(666,909)\n(267,630)\n(835,516)\n(527,342)\n(927,121)\n(711,756)\n(100,211)\n(492,877)\n(68,320)\n(985,345)\n(299,247)\n(963,16)\n(396,773)\n(764,807)\n(234,995)\n(969,257)\n(346,983)\n(973,319)\n(703,491)\n(635,955)\n(782,749)\n(573,947)\n(787,795)\n(549,374)\n(630,606)\n(517,560)\n(600,648)\n(900,611)\n(108,818)\n(995,176)\n(21,925)\n(981,452)\n(214,856)\n(110,56)\n(648,757)\n(503,353)\n(361,28)\n(869,626)\n(737,389)\n(741,972)\n(704,365)\n(804,795)\n(308,162)\n(821,378)\n(363,244)\n(224,384)\n(714,212)\n(946,625)\n(449,812)\n(594,941)\n(44,717)\n(552,641)\n(721,130)\n(984,281)\n(696,613)\n(887,670)\n(123,94)\n(945,848)\n(479,17)\n(231,611)\n(898,743)\n(625,548)\n(376,659)\n(663,713)\n(810,693)\n(818,716)\n(959,215)\n(456,67)\n(382,130)\n(732,109)\n(502,339)\n(773,695)\n(169,107)\n(204,807)\n(869,503)\n(941,170)\n(267,572)\n(966,928)\n(914,73)\n(457,231)\n(52,521)\n(680,466)\n(894,316)\n(887,124)\n(788,676)\n(114,417)\n(28,81)\n(329,116)\n(380,844)\n(795,187)\n(54,914)\n(425,95)\n(403,285)\n(815,879)\n(151,735)\n(722,765)\n(537,955)\n(446,936)\n(421,161)\n(189,349)\n(191,647)\n(129,357)\n(12,838)\n(385,415)\n(325,427)\n(387,852)\n(119,107)\n(251,18)\n(651,821)\n(626,602)\n(861,928)\n(42,934)\n(225,841)\n(280,823)\n(772,877)\n(715,308)\n(377,518)\n(175,575)\n(205,681)\n(138,835)\n(974,240)\n(51,874)\n(549,290)\n(74,449)\n(88,962)\n(388,344)\n(0,689)\n(790,153)\n(381,967)\n(363,113)\n(494,962)\n(832,495)\n(85,642)\n(656,496)\n(585,678)\n(602,571)\n(2,555)\n(411,780)\n(746,717)\n(683,959)\n(353,937)\n(462,958)\n(730,422)\n(31,665)\n(665,443)\n(779,677)\n(76,946)\n(883,594)\n(195,850)\n(83,925)\n(760,643)\n(24,262)\n(321,91)\n(375,766)\n(216,814)\n(495,334)\n(683,507)\n(223,858)\n(285,204)\n(218,164)\n(183,148)\n(178,446)\n(907,426)\n(776,874)\n(75,320)\n(683,3)\n0\n42\n125\n70\n27\n23\n76\n92\n121\n11\n92\n40\n90\n113\n141\n135\n194\n185\n121\n32\n159\n157\n67\n125\n181\n121\n120\n40\n16\n11\n40\n157\n42\n126\n79\n137\n90\n195\n198\n23\n189\n121\n194\n90\n27\n120\n163\n126\n141\n106\n189\n195\n76\n45\n198\n113\n198\n101\n159\n189\n125\n133\n42\n126\n163\n44\n186\n79\n44\n27\n121\n126\n185\n78\n44\n19\n90\n132\n126\n40\n76\n78\n120\n189\n90\n141\n185\n193\n102\n78\n94\n126\n135\n113\n141\n11\n186\n126\n185\n132\n27\n132\n121\n67\n11\n76\n137\n132\n40\n90\n195\n102\n15\n138\n102\n132\n42\n101\n132\n23\n195\n186\n70\n121\n101\n90\n189\n11\n119\n27\n163\n17\n185\n23\n27\n40\n185\n135\n42\n78\n152\n67\n125\n79\n189\n81\n126\n102\n193\n137\n185\n90\n186\n157\n137\n78\n90\n101\n189\n141\n124\n189\n126\n198\n137\n78\n92\n185\n198\n138\n17\n15\n125\n120\n189\n91\n135\n132\n76\n163\n119\n138\n121\n189\n195\n120\n194\n186\n193\n125\n79\n126\n79\n140\n135\n11\n137\n79\n189\n17\n140\n135\n42\n17\n23\n32\n79\n185\n145\n106\n90\n141\n195\n40\n193\n132\n17\n141\n113\n193\n172\n42\n133\n79\n42\n163\n126\n92\n159\n79\n102\n70\n102\n195\n119\n135\n79\n193\n27\n135\n121\n67\n92\n138\n101\n163\n193\n27\n135\n125\n16\n27\n32\n92\n173\n119\n140\n70\n23\n44\n102\n27\n40\n17\n119\n11\n92\n132\n157\n102\n66\n106\n159\n40\n16\n27\n79\n120\n119\n142\n186\n2\n194\n125\n11\n126\n120\n113\n102\n11\n189\n125\n32\n27\n193\n67\n192\n90\n135\n17\n163\n132\n138\n79\n44\n23\n186\n27\n125\n79\n70\n198\n157\n198\n101\n92\n186\n192\n101\n195\n16\n194\n44\n140\n78\n198\n186\n27\n140\n138\n79\n194\n67\n90\n92\n138\n67\n40\n163\n193\n44\n40\n185\n78\n192\n133\n185\n120\n121\n16\n163\n90\n138\n159\n17\n133\n92\n42\n16\n79\n189\n140\n102\n119\n186\n11\n121\n137\n163\n140\n138\n126\n7\n77\n193\n133\n194\n101\n11\n159\n78\n185\n22\n195\n137\n198\n32\n78\n27\n126\n189\n27\n135\n141\n107\n113\n192\n135\n193\n23\n102\n141\n92\n198\n23\n70\n189\n132\n185\n121\n76\n42\n125\n103\n44\n192\n16\n40\n137\n40\n159\n141\n76\n113\n76\n132\n198\n138\n70\n133\n140\n185\n194\n138\n137\n101\n85\n113\n126\n79\n132\n27\n137\n91\n70\n59\n27\n189\n192\n125\n137\n67\n125\n163\n195\n24\n125\n42\n92\n157\n119\n159\n135\n101\n23\n185\n23\n70\n140\n198\n157\n90\n27\n195\n92\n23\n44\n133\n101\n135\n192\n27\n132\n90\n195\n163\n32\n189\n102\n133\n70\n69\n13\n87\n167\n72\n0\n74\n49\n45\n87\n74\n12\n87\n161\n51\n119\n63\n6\n57\n176\n38\n37\n31\n43\n165\n116\n86\n112\n123\n115\n26\n155\n112\n199\n104\n149\n12\n123\n52\n38\n112\n116\n69\n131\n123\n65\n84\n57\n116\n26\n14\n117\n57\n74\n176\n103\n123\n116\n117\n43\n103\n57\n112\n51\n104\n72\n100\n77\n154\n31\n112\n156\n0\n109\n161\n77\n100\n112\n6\n165\n176\n100\n161\n165\n45\n87\n104\n12\n104\n112\n115\n103\n51\n117\n57\n51\n45\n156\n63\n72\n45\n56\n31\n86\n24\n6\n100\n116\n2" <> ...
+```
+
+```elixir
+defmodule Santagoras do
+  alias Util.Counter
+
+  def parse_input(input) do
+    lines =
+      input
+      |> String.split("\n", trim: true)
+
+    lines
+    |> Enum.group_by(
+      fn
+        "(" <> _ -> :locations
+        _ -> :route
+      end,
+      fn
+        "(" <> _ = s ->
+          Regex.scan(~r/\d+/, s)
+          |> Enum.map(fn [n] -> String.to_integer(n) end)
+          |> List.to_tuple()
+
+        s ->
+          s |> String.to_integer()
+      end
+    )
+  end
+
+  def covered_area({ax, ay}, {bx, by}) do
+    xs =
+      if ax < bx do
+        ax..(bx - 1)
+      else
+        ax..(bx + 1)
+      end
+
+    ys =
+      if ay < by do
+        ay..(by - 1)
+      else
+        ay..(by + 1)
+      end
+
+    for(y <- ys, do: for(x <- xs, do: {x, y}))
+    |> List.flatten()
+  end
+
+  def pretty_print(%Counter{items: count}) do
+    {max_x, _} = count |> Map.keys() |> Enum.max_by(fn {x, _} -> x end)
+    {_, max_y} = count |> Map.keys() |> Enum.max_by(fn {_, y} -> y end)
+
+    max_y..0
+    |> Enum.each(fn y ->
+      ("#{y}\t|" <>
+         (0..max_x
+          |> Stream.map(fn x ->
+            Map.get(count, {x, y}, 0)
+            |> case do
+              0 -> "."
+              i when is_integer(i) -> Integer.to_string(i)
+            end
+          end)
+          |> Enum.join("")))
+      |> IO.puts()
+    end)
+
+    IO.puts("")
+  end
+
+  def solve(input, acc \\ %Counter{})
+
+  def solve(%{route: route}, acc) when length(route) < 2, do: acc
+
+  def solve(%{locations: locs, route: [a, b | t]}, acc) do
+    {ax, ay} = Enum.at(locs, a)
+    {bx, by} = Enum.at(locs, b)
+
+    new = covered_area({ax, ay}, {bx, by}) |> Counter.new()
+
+    solve(%{locations: locs, route: [b | t]}, Counter.merge(acc, new))
+  end
+end
+```
+
+```output
+Excluding tags: [:skip]
+
+6	|....111
+5	|.111221
+4	|.111221
+3	|.111221
+2	|.11111.
+1	|.11111.
+0	|.......
+
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 659678
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+defmodule Santagoras.Test do
+  use ExUnit.Case
+
+  import Santagoras
+
+  test "example" do
+    input = "(1,1)
+(6,6)
+(3,2)
+(6,1)
+0
+1
+2"
+
+    counter =
+      input
+      |> parse_input
+      |> solve
+      |> tap(&pretty_print/1)
+
+    assert Map.get(counter.items, {1, 1}) == 1
+    assert Map.get(counter.items, {6, 6}) == 1
+    assert Map.get(counter.items, {3, 2}) == 1
+    assert Map.get(counter.items, {6, 1}, 0) == 0
+  end
+end
+
+%{failures: 0} = ExUnit.run()
+```
+
+```output
+Excluding tags: [:skip]
+
+6	|....111
+5	|.111221
+4	|.111221
+3	|.111221
+2	|.11111.
+1	|.11111.
+0	|.......
+
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 659678
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+import Santagoras
+
+%{locations: locs, route: route} =
+  day_8_input
+  |> parse_input
+
+counter =
+  %{locations: locs, route: route}
+  |> solve
+
+Util.Counter.most_common(counter, 1)
+```
+
+```output
+[{{551, 421}, 766}]
+```
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+sorted =
+  Util.Counter.most_common(counter, 100)
+  |> Stream.chunk_every(2, 1)
+  |> Stream.take_while(fn [{_, n1}, {_, n2}] -> n1 == n2 end)
+  |> Stream.map(fn [{{x, y}, _}, _] -> {x, y} end)
+  |> Enum.sort()
+
+Enum.min(sorted) |> IO.inspect()
+Enum.max(sorted) |> IO.inspect()
+```
+
+```output
+{550, 418}
+{551, 421}
+```
+
+```output
+{551, 421}
 ```
