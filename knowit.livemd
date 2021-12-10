@@ -1423,3 +1423,109 @@ ChineseRemainderTheorem.solve([
 ```output
 2515703161926
 ```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 10
+
+Etter hvert som julaften nærmer seg så merker du at spenningen stiger og stiger med tanke på hva du vil få av nissen. Du er usikker på om du klarer å vente helt til den 24. for å se hva som ender opp under treet i år. I et svakt øyeblikk bestikker du en av julenissens hjelpere og kommer i anskaffelse av nissens mobiltelefon! Som du vet kan telefoner låses opp ved å koble en sekvens av punkter i et rutenett med fingeren uten å løfte den.
+
+Den korrupte hjelperen har lenge skuet på nissen og forteller deg at koden hans starter på D og er 8 punkter lang.
+
+Hvor mange mønstre må du maksimalt prøve for å låse opp Julenissens mobiltelefon?
+
+Eksempel: Hvis koden starter på G og er 2 punkter lang ville svaret vært 5:
+
+```
+G -> H
+G -> F
+G -> E
+G -> B
+G -> D
+```
+
+Regler:
+
+* I et mønster så kan ingen punkter gjentas og kun brukes én gang på det meste.
+* I et mønster så kan to punkter kun kobles sammen med en rett linje på følgende måter (vist i eksempelet):
+  * Vertikalt: A -> B
+  * Horisontalt: D -> G
+  * Diagonalt: I -> E eller B -> I
+  * Passere over et punkt som allerede er blitt brukt: G -> C som passerer over E.
+
+```elixir
+defmodule LockScreen do
+  @blockers [
+    [:a, :b, :c],
+    [:a, :d, :g],
+    [:a, :e, :i],
+    [:b, :e, :h],
+    [:c, :e, :g],
+    [:c, :f, :i],
+    [:d, :e, :f],
+    [:g, :h, :i]
+  ]
+
+  def solve(acc, 0), do: acc |> Enum.join("->")
+
+  def solve(acc, n) do
+    ~w/a b c d e f g h i/a
+    |> Enum.reject(fn a -> Enum.member?(acc, a) end)
+    |> Enum.reject(fn a ->
+      prev = List.last(acc)
+      [x, y] = Enum.sort([prev, a])
+
+      Enum.any?(@blockers, fn
+        [^x, b, ^y] -> not Enum.member?(acc, b)
+        _ -> false
+      end)
+    end)
+    |> Enum.map(fn a -> solve(acc ++ [a], n - 1) end)
+    |> List.flatten()
+  end
+
+  def possible_codes(start_char, n) do
+    solve([start_char], n - 1)
+  end
+end
+```
+
+```output
+{:module, LockScreen, <<70, 79, 82, 49, 0, 0, 11, ...>>, {:possible_codes, 2}}
+```
+
+```elixir
+defmodule LockScreen.Test do
+  use ExUnit.Case
+
+  test "example" do
+    assert LockScreen.possible_codes(:g, 2) |> IO.inspect() |> length() == 5
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+Excluding tags: [:skip]
+
+["g->b", "g->d", "g->e", "g->f", "g->h"]
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 264319
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+LockScreen.possible_codes(:d, 8) |> length()
+```
+
+```output
+15564
+```
