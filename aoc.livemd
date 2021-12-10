@@ -170,7 +170,7 @@ ExUnit.run()
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 20312
+Randomized with seed 534332
 ```
 
 ```output
@@ -289,7 +289,7 @@ ExUnit.run()
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 20312
+Randomized with seed 534332
 ```
 
 ```output
@@ -401,7 +401,7 @@ ExUnit.run()
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 20312
+Randomized with seed 534332
 ```
 
 ```output
@@ -490,7 +490,7 @@ ExUnit.run()
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 20312
+Randomized with seed 534332
 ```
 
 ```output
@@ -627,7 +627,7 @@ ExUnit.run()
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 20312
+Randomized with seed 534332
 ```
 
 ```output
@@ -761,7 +761,7 @@ ExUnit.run()
 Finished in 0.00 seconds (0.00s async, 0.00s sync)
 1 test, 0 failures
 
-Randomized with seed 20312
+Randomized with seed 534332
 ```
 
 ```output
@@ -780,4 +780,369 @@ a * b
 
 ```output
 4203981
+```
+
+<!-- livebook:{"branch_parent_index":0} -->
+
+## Day 4
+
+You're already almost 1.5km (almost a mile) below the surface of the ocean, already so deep that you can't see any sunlight. What you can see, however, is a giant squid that has attached itself to the outside of your submarine.
+
+Maybe it wants to play bingo?
+
+Bingo is played on a set of boards each consisting of a 5x5 grid of numbers. Numbers are chosen at random, and the chosen number is marked on all boards on which it appears. (Numbers may not appear on all boards.) If all numbers in any row or any column of a board are marked, that board wins. (Diagonals don't count.)
+
+The submarine has a bingo subsystem to help passengers (currently, you and the giant squid) pass the time. It automatically generates a random order in which to draw numbers and a random set of boards (your puzzle input). For example:
+
+```
+7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+
+22 13 17 11  0
+8   2 23  4 24
+21  9 14 16  7
+6  10  3 18  5
+1  12 20 15 19
+
+3  15  0  2 22
+9  18 13 17  5
+19  8  7 25 23
+20 11 10 24  4
+14 21 16 12  6
+
+14 21 17 24  4
+10 16 15  9 19
+18  8 23 26 20
+22 11 13  6  5
+2   0 12  3  7
+```
+
+After the first five numbers are drawn (7, 4, 9, 5, and 11), there are no winners, but the boards are marked as follows (shown here adjacent to each other to save space):
+
+```
+22 13 17 11  0         3 15  0  2 22        14 21 17 24  4
+8   2 23  4 24         9 18 13 17  5        10 16 15  9 19
+21  9 14 16  7        19  8  7 25 23        18  8 23 26 20
+6  10  3 18  5        20 11 10 24  4        22 11 13  6  5
+1  12 20 15 19        14 21 16 12  6         2  0 12  3  7
+```
+
+After the next six numbers are drawn (17, 23, 2, 0, 14, and 21), there are still no winners:
+
+```
+22 13 17 11  0         3 15  0  2 22        14 21 17 24  4
+8   2 23  4 24         9 18 13 17  5        10 16 15  9 19
+21  9 14 16  7        19  8  7 25 23        18  8 23 26 20
+6  10  3 18  5        20 11 10 24  4        22 11 13  6  5
+1  12 20 15 19        14 21 16 12  6         2  0 12  3  7
+```
+
+Finally, 24 is drawn:
+
+```
+22 13 17 11  0         3 15  0  2 22        14 21 17 24  4
+8   2 23  4 24         9 18 13 17  5        10 16 15  9 19
+21  9 14 16  7        19  8  7 25 23        18  8 23 26 20
+6  10  3 18  5        20 11 10 24  4        22 11 13  6  5
+1  12 20 15 19        14 21 16 12  6         2  0 12  3  7
+```
+
+At this point, the third board wins because it has at least one complete row or column of marked numbers (in this case, the entire top row is marked: 14 21 17 24 4).
+
+The score of the winning board can now be calculated. Start by finding the sum of all unmarked numbers on that board; in this case, the sum is 188. Then, multiply that sum by the number that was just called when the board won, 24, to get the final score, 188 * 24 = 4512.
+
+To guarantee victory against the giant squid, figure out which board will win first. What will your final score be if you choose that board?
+
+```elixir
+day_4_input = AoCInput.get_input(4)
+```
+
+```output
+"1,76,38,96,62,41,27,33,4,2,94,15,89,25,66,14,30,0,71,21,48,44,87,73,60,50,77,45,29,18,5,99,65,16,93,95,37,3,52,32,46,80,98,63,92,24,35,55,12,81,51,17,70,78,61,91,54,8,72,40,74,68,75,67,39,64,10,53,9,31,6,7,47,42,90,20,19,36,22,43,58,28,79,86,57,49,83,84,97,11,85,26,69,23,59,82,88,34,56,13\n\n85 23 65 78 93\n27 53 10 12 26\n 5 34 83 25  6\n56 40 73 29 54\n33 68 41 32 82\n\n 8 31 14 70 91\n53 49 86 13 21\n66 28 76 78 93\n39 63 80 43 23\n56 25 60 67 72\n\n67 78 36 64 14\n46 16 80 23 94\n22 47 51 65 57\n33 76 21 92 97\n31 95 54 27 20\n\n 1 77 86 43 30\n28 88  7  5 60\n66 24  3 57 33\n38 23 59 84 44\n74 47 17 29 85\n\n21 50 86  2 70\n85 19 22 93 25\n99 38 74 30 65\n81  0 47 78 63\n34 11 51 88 64\n\n45 15 29 81 30\n75 21 88 91 49\n39 20  4 17 78\n10 12 38 11  7\n98  6 65 69 86\n\n36 20 31 44 69\n30 65 55 88 64\n74 85 82 61  5\n57 17 90 43 54\n58 83 52 23  7\n\n42 16 82 86 76\n60 26 27 59 55\n 7 53 22 78  5\n18 61 10 15 17\n28 46 14 87 77\n\n21 43 15 47 61\n24 76 28  3 27\n19 62 69 82 93\n49 29 97 74 41\n92 36 37 99 40\n\n31  4  3 62 51\n24 57 78 67 53\n13  5 76 38 55\n79  9 75 98 71\n65  1 39 18 47\n\n59  4 38 95 99\n85 68 69 93 43\n83 57 48 42 15\n47 50 80 79 90\n56 87 78 64 25\n\n21 37 14 67 95\n88 39 26 38 49\n89 83 54 77 96\n48 86 94 19 20\n43 41  8 74 58\n\n 1 36 12 90 91\n63 21 98 82 66\n39 86  7 52 77\n80 81 44 33 58\n78 30 11 51 28\n\n81 74  7 33 96\n75 60 87 47 91\n39 73 30 50 13\n 4 41  9 43 77\n34 82 72 48 12\n\n93 63 74 25 57\n29 76  9 45 70\n98 77 71 16 41\n47 54 18 14 55\n31 89 67 87 83\n\n 8 72 45 93 68\n74 26 69 94 65\n28  9 20 47 41\n46 54 21 56 22\n84 62 18 15 48\n\n20 51 81 40 69\n71 10 13 93 75\n44 86  0 95 37\n99 39 76 80 66\n14 64 49 62 27\n\n75  7 51 86 79\n43 30 61 39 16\n85 63 90 28 96\n88 78 72 31 73\n98 87 23 19 58\n\n20 95 47 97 12\n92 25 68 87 91\n37 10 78 23 63\n74 93 58 39  5\n76 51 48 72 16\n\n37 18 32 34 85\n22 31 98 42 19\n29 72 48 76 25\n47  1 21  7 53\n79 82 86 52 78\n\n20 16 47 78 92\n88 15 71 67  2\n 5 52 90 70  9\n22 49 28 82 27\n 6 19 61 73 48\n\n71 26  7 11 79\n52 30 47  1 31\n17 75 94 91 28\n81 98 23 55 21\n77 15 39 24 16\n\n 5 75 44 88 65\n89 45 23 69 19\n41 61 67 52 54\n47 38 57 12 98\n62 70 26 87 53\n\n50  4 65 77 25\n 6 21  5 27 92\n39 63 97 75 79\n60 34 87 26 74\n99 24 44 85  2\n\n13 64 38 78 21\n74 17 83 57 94\n25 39 69 53  4\n54 33 81 50 76\n42 75 19 77 26\n\n63 31 70 19 39\n38 87 15 90 75\n61 98  6 29 86\n78 62 32 11 60\n55 97 13 73 82\n\n51 63 68 84 36\n12 33 37 31  8\n18 41 34 74 23\n72 39 85 48 60\n24 19 29 88  0\n\n46 51 17 23 13\n20 93 97 99 81\n57 47 33 84 44\n28 96  2 43 56\n68 36 62 15  5\n\n81 99  5 30 10\n38 62 57  8 37\n 7 86 98  3 54\n46 82 96 15 72\n83  1 75 25 50\n\n47 57 11 61 27\n53 10 31 91 98\n76 85 55 38 23\n 6 81 67 71 70\n35 29 17 50 56\n\n24 65 15  1 89\n45 60 97 23 14\n84 56 58  5 54\n 3 72 51 46 79\n67 70 78 34 77\n\n38 11 54 23  2\n33 14 10 96 63\n43  5 36 20 30\n70 53 66 71  9\n91 90 21  7 88\n\n94 44  4 86 26\n39 70 54 50 30\n55 40 12 72 71\n68  7 66 47 91\n31 24 13  1 96\n\n79 14 40 87 68\n16 32 53 46 98\n38 95 21 89 69\n62 60 19 81 33\n70 52 28 83  0\n\n62 42 38 48 64\n61 79 78 97 98\n89  7  3 29 68\n92 76 14 67  1\n41 99 72 47 60\n\n 5 75 18 42 33\n72 61 36 31 29\n19 58  1 34 94\n54 84 92 99 38\n76 68 79 53 37\n\n14 91 37  5 98\n68 29 34 76 43\n75  0 67 33 69\n81 47 58 30 93\n88 92 42 77 54\n\n64 24 28 54 53\n72 68  3 73  4\n83  6 59 66 94\n87 80 55 20 16\n13 82 74 31 70\n\n63 92 71  0 83\n98 40 50 55  2\n88  5 85 30 23\n10 75 81 58 68\n51 31 14 89  1\n\n67 93 94 54 53\n38 71 34 40 24\n31 63 30 99 75\n 4 57 86 19 70\n60 49 87 68 74\n\n56 94 79 53  7\n24 12 19  6 99\n82 51 41 46 43\n17 49 52 78 55\n75 48 61 70 87\n\n14 55 32 21 31\n88 83 23 44  4\n 1 77 45 90 85\n46 81 51 27 62\n60 24 29 18  0\n\n95 92 91 27 26\n22 43 45 64 62\n83 23 25 85 94\n84 53 72 28 20\n75 60 52 18 73\n\n95 41  7 21 32\n58 65 16 56 97\n68 25 91 83 24\n66 89 15 55  6\n 2 30 84 10 90\n\n58 86 44 19 74\n57 89 17  6 83\n77 35 60 32 13\n97 63 62 28 76\n55 31 11  0 52\n\n33 39 59 42 45\n61 50 92  9 79\n15  0 28  5 72\n91 24 21 29 87\n86 76 43 31 93\n\n63 11 86 45 85\n96 74 66 93 32\n95 30 99 23 18\n69 97 48 15  1\n42 87 47 83 80\n\n93  5 40 64  2\n44 51 15 54 83\n69 77 90 58 11\n 0 48 43 30 55\n25 72 38 73 52\n\n89 58 71 68 15\n23 65  9 36 74\n21 29 42 79 98\n55 47 33 39 28\n16 75 91 69 57\n\n13 79 12 71  2\n60 94 99 43 82\n84 89 29 91 87\n74 80 25 32 21\n70 14 68 92 11\n\n78  1" <> ...
+```
+
+```elixir
+defmodule Bingo do
+  defstruct [:board]
+
+  defp parse_board(input) do
+    board =
+      input
+      |> String.split("\n")
+      |> Enum.map(fn line ->
+        line |> String.split(" ", trim: true) |> Enum.map(&String.to_integer/1)
+      end)
+
+    %Bingo{board: board}
+  end
+
+  def parse_input(input) do
+    [numbers | boards] = input |> String.split("\n\n")
+
+    {
+      numbers |> String.split(",") |> Enum.map(&String.to_integer/1),
+      boards |> Enum.map(&parse_board/1)
+    }
+  end
+
+  def check_number(%Bingo{board: board}, number) do
+    updated =
+      board
+      |> Enum.map(fn row ->
+        row
+        |> Enum.map(fn
+          ^number -> nil
+          n -> n
+        end)
+      end)
+
+    %Bingo{board: updated}
+  end
+
+  def get_cols(%Bingo{board: board}) do
+    board |> Enum.zip() |> Enum.map(&Tuple.to_list/1)
+  end
+
+  def get_diagonals(%Bingo{board: board}) do
+    [for(i <- 0..(length(board) - 1), do: board |> Enum.at(i) |> Enum.at(i))]
+  end
+
+  def bingo?(%Bingo{board: board} = bingo) do
+    board |> Enum.any?(fn ns -> ns |> Enum.all?(fn n -> n == nil end) end) or
+      get_cols(bingo) |> Enum.any?(fn ns -> ns |> Enum.all?(fn n -> n == nil end) end) or
+      get_diagonals(bingo) |> Enum.any?(fn ns -> ns |> Enum.all?(fn n -> n == nil end) end)
+  end
+
+  def sum(%Bingo{board: board}) do
+    board |> Enum.map(fn row -> row |> Enum.reject(&is_nil/1) |> Enum.sum() end) |> Enum.sum()
+  end
+
+  def play(bingos, number) do
+    bingos
+    |> Enum.map(fn bingo -> bingo |> check_number(number) end)
+  end
+
+  def solve(input) do
+    {numbers, bingos} =
+      input
+      |> parse_input
+
+    numbers
+    |> Enum.reduce_while(bingos, fn n, acc ->
+      updated = play(acc, n)
+
+      winners = updated |> Enum.filter(&bingo?/1)
+
+      if length(winners) > 0 do
+        {:halt, {winners, n}}
+      else
+        {:cont, updated}
+      end
+    end)
+  end
+
+  def get_losiest_loser(input) do
+    {numbers, bingos} =
+      input
+      |> parse_input
+
+    numbers
+    |> Enum.reduce_while(bingos, fn n, acc ->
+      updated = play(acc, n)
+
+      losers =
+        if length(updated) > 1 do
+          updated |> Enum.reject(&bingo?/1)
+        else
+          updated
+        end
+
+      if length(losers) == 1 and losers |> Enum.at(0) |> bingo? do
+        {:halt, {losers, n}}
+      else
+        {:cont, losers}
+      end
+    end)
+  end
+end
+```
+
+```output
+{:module, Bingo, <<70, 79, 82, 49, 0, 0, 29, ...>>, {:get_losiest_loser, 1}}
+```
+
+```elixir
+defmodule Bingo.Test do
+  use ExUnit.Case
+
+  import Bingo
+
+  test "example" do
+    input = "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+
+22 13 17 11  0
+8   2 23  4 24
+21  9 14 16  7
+6  10  3 18  5
+1  12 20 15 19
+
+3  15  0  2 22
+9  18 13 17  5
+19  8  7 25 23
+20 11 10 24  4
+14 21 16 12  6
+
+14 21 17 24  4
+10 16 15  9 19
+18  8 23 26 20
+22 11 13  6  5
+2   0 12  3  7"
+
+    {[winner | _], n} = solve(input)
+
+    assert sum(winner) * n == 4512
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 534332
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+import Bingo
+
+{[winner | _], n} =
+  solve(day_4_input)
+  |> IO.inspect()
+
+sum(winner) * n
+```
+
+```output
+{[
+   %Bingo{
+     board: [
+       [nil, 91, 37, nil, 98],
+       [68, nil, 34, nil, 43],
+       [75, nil, 67, nil, 69],
+       [81, 47, 58, nil, 93],
+       [88, 92, 42, nil, 54]
+     ]
+   }
+ ], 5}
+```
+
+```output
+5685
+```
+
+### Day 4 - part 2
+
+On the other hand, it might be wise to try a different strategy: let the giant squid win.
+
+You aren't sure how many bingo boards a giant squid could play at once, so rather than waste time counting its arms, the safe thing to do is to figure out which board will win last and choose that one. That way, no matter which boards it picks, it will win for sure.
+
+In the above example, the second board is the last to win, which happens after 13 is eventually called and its middle column is completely marked. If you were to keep playing until this point, the second board would have a sum of unmarked numbers equal to 148 for a final score of 148 * 13 = 1924.
+
+Figure out which board will win last. Once it wins, what would its final score be?
+
+```elixir
+defmodule Bingo.Part2.Test do
+  use ExUnit.Case
+
+  import Bingo
+
+  test "example" do
+    input = "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+
+22 13 17 11  0
+8   2 23  4 24
+21  9 14 16  7
+6  10  3 18  5
+1  12 20 15 19
+
+3  15  0  2 22
+9  18 13 17  5
+19  8  7 25 23
+20 11 10 24  4
+14 21 16 12  6
+
+14 21 17 24  4
+10 16 15  9 19
+18  8 23 26 20
+22 11 13  6  5
+2   0 12  3  7"
+
+    {[loser | _], n} =
+      get_losiest_loser(input)
+      |> IO.inspect()
+
+    assert sum(loser) * n == 1924
+  end
+end
+
+ExUnit.run()
+```
+
+```output
+{[
+   %Bingo{
+     board: [
+       [3, 15, nil, nil, 22],
+       [nil, 18, nil, nil, nil],
+       [19, 8, nil, 25, nil],
+       [20, nil, nil, nil, nil],
+       [nil, nil, nil, 12, 6]
+     ]
+   }
+ ], 13}
+.
+
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+1 test, 0 failures
+
+Randomized with seed 534332
+```
+
+```output
+%{excluded: 0, failures: 0, skipped: 0, total: 1}
+```
+
+```elixir
+import Bingo
+
+{[loser | _], n} =
+  get_losiest_loser(day_4_input)
+  |> IO.inspect()
+
+sum(loser) * n
+```
+
+```output
+{[
+   %Bingo{
+     board: [
+       [nil, nil, 83, nil, nil],
+       [88, nil, nil, nil, nil],
+       [nil, nil, 59, nil, nil],
+       [nil, nil, nil, 34, nil],
+       [97, nil, nil, nil, 69]
+     ]
+   }
+ ], 49}
+```
+
+```output
+21070
 ```
